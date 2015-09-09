@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /*global require, module, $*/
 var notify = require('../util/notify')
   , config = require('./config')
@@ -165,6 +165,21 @@ function get(id) {
   })
 }
 
+// if any lastCommentPosted prop doesn't match it's twin then a comment has been updated
+function isAnyCommentNew (o1, o2) {
+    var updated = false;
+    if (o1 && o1.item && o1.item.length > 0 && o2 && o2.item && o2.item.length > 0) {
+        $.each(o1.item, function (i, e) {
+            var x = o2.item[i];
+            if (e.lastCommentPosted !== x.lastCommentPosted) {
+                updated = true;
+                return false;
+            }
+        });
+    }
+    return updated;
+}
+
 function removeOrphanedImages() {
   return new Promise(function (resolve, reject) {
     var images = ['image-unavailable_605x328.png'];
@@ -224,150 +239,354 @@ module.exports = {
 /*global module, require*/
 
 module.exports = {
-	fs: void 0
-	, appName: 'Carnegie'
-	, track: true
-	, trackId: 'UA-31877-29'
-	, folder: 'com.ceip.carnegie'
-	, storyFontSize: 1.0
-	, connectionMessage: 'No network connection detected'
-	, menuMessage: 'Not yet downloaded'
-	, missingImage: 'http://m.ceip.org/img/appsupport/image-unavailable_605x328.png'
-	, missingImageRef: void 0
-	, menu: [{
-		title: 'Analysis'
-		, sub: 'Read Offline'
-		, feeds: [{
-			url: 'http://carnegieendowment.org/rss/solr/?fa=AppGlobalJson'
-			, name: 'Latest Analysis'
-			, filename: 'mobile-global.json'
-			, type: 'json'
-			, required: true
-		}, {
-			url: 'http://carnegieendowment.org/rss/feeds/mobile-carnegie-top5.json.txt'
-			, name: 'Most Popular'
-			, filename: 'top5.json'
-			, type: 'json'
-		}]
-	}, {
-		title: 'Languages'
-		, sub: 'Read Offline'
-		, feeds: [{
-			url: 'http://carnegieendowment.org/rss/solr/?fa=AppGlobalJson'
-			, name: 'English'
-			, filename: 'mobile-global.json'
-			, type: 'json'
-			, required: true
-		}, {
-			url: 'http://carnegieendowment.org/rss/solr/?fa=AppGlobalJson&lang=ru'
-			, name: 'Русский'
-			, type: 'json'
-			, filename: 'russian-json.json'
-		}, {
-			url: 'http://carnegieendowment.org/rss/solr/?fa=AppGlobalJson&lang=zh'
-			, name: '中文'
-			, type: 'json'
-			, filename: 'china-json.json'
-		}, {
-			url: 'http://carnegieendowment.org/rss/solr/?fa=AppGlobalJson&lang=ar'
-			, name: 'عربي'
-			, dir: 'rtl'
-			, type: 'json'
-			, filename: 'arabic-json.json'
-		}]
-	}, {
-		title: 'Global Centers'
-		, sub: 'Read Offline'
-		, feeds: [{
-			url: 'http://carnegieendowment.org/rss/solr/?fa=AppGlobalJson&center=beijing'
-			, name: 'Beijing'
-			, type: 'json'
-			, filename: 'beijing-json.json'
-		}, {
-			url: 'http://carnegieendowment.org/rss/solr/?fa=AppGlobalJson&center=beirut'
-			, name: 'Beirut'
-			, type: 'json'
-			, filename: 'beirut-json.json'
-		}, {
-			url: 'http://carnegieendowment.org/rss/solr/?fa=AppGlobalJson&center=brussels'
-			, name: 'Brussels'
-			, type: 'json'
-			, filename: 'brussels-json.json'
-		}, {
-			url: 'http://carnegieendowment.org/rss/solr/?fa=AppGlobalJson&center=moscow'
-			, name: 'Moscow'
-			, type: 'json'
-			, filename: 'moscow-json.json'
-		}, {
-			url: 'http://carnegieendowment.org/rss/solr/?fa=AppGlobalJson'
-			, name: 'Washington D.C.'
-			, filename: 'mobile-global.json'
-			, type: 'json'
-			, required: true
-		}]
-	}, {
-		title: 'Blogs'
-		, sub: 'From m.ceip.org'
-		, links: [{
-			url: 'http://carnegie.ru/eurasiaoutlook/?lang=en'
-			, name: 'Eurasia Outlook'
-		}, {
-			url: 'http://carnegieendowment.org/sada/'
-			, name: 'Sada'
-		}, {
-			url: 'http://carnegieeurope.eu/strategiceurope/'
-			, name: 'Strategic Europe'
-		}, {
-			url: 'http://carnegieendowment.org/syriaincrisis/'
-			, name: 'Syria in Crisis'
-		}]
-	}, {
-		title: 'Global Resources'
-		, links: [{
-			url: 'http://carnegieendowment.org/topic/'
-			, name: 'Issues'
-		}, {
-			url: 'http://carnegieendowment.org/regions/'
-			, name: 'Regions'
-		}, {
-			url: 'http://carnegieendowment.org/experts/'
-			, name: 'Experts'
-		}, {
-			url: 'http://carnegieendowment.org/publications/'
-			, name: 'Publications'
-		}, {
-			url: 'http://carnegieendowment.org/events/'
-			, name: 'Events'
-		}, {
-			url: 'http://carnegieendowment.org/programs/'
-			, name: 'Programs'
-		}, {
-			url: 'http://carnegieendowment.org/video/'
-			, name: 'Carnegie Video'
-		}, {
-			url: 'http://carnegieendowment.org/infographics'
-			, name: 'Infographics'
-		}]
-	}, {
-		title: 'Explore'
-		, links: [{
-			url: 'http://carnegieendowment.org/resources/?fa=register'
-			, name: 'Stay in the Know'
-		}, {
-			url: 'http://carnegieendowment.org/about/'
-			, name: 'About Us'
-		}, {
-			url: 'http://carnegieendowment.org/about/development/'
-			, name: 'Support Carnegie'
-		}, {
-			url: 'http://carnegieendowment.org/about/?fa=contact'
-			, name: 'Help Desk'
-		}, {
-			url: 'http://carnegieendowment.org/about/index.cfm?fa=privacy'
-			, name: 'Privacy Statement'
-		}]
-	}
-	]
+    fs: void 0
+    , appName: 'Sada'
+    , track: true
+    , trackId: 'UA-31877-21'
+    , folder: 'com.ceip.sada'
+    , storyFontSize: 1.0
+    , connectionMessage: 'No network connection detected'
+    , menuMessage: 'Not yet downloaded'
+    , missingImage: 'http://carnegieendowment.org/app-img-not-avail.png'
+    , missingImageRef: void 0
+    , menu: [{
+        title: 'Now from Sada'
+        , sub: 'Read Offline'
+        , feeds: [{
+            url: 'http://carnegieendowment.org/rss/solr/?fa=AppSadaEn'
+            , name: 'Update Posts'
+            , filename: 'sada-en.json'
+            , type: 'json'
+            , required: true
+        }]
+    }, {
+        title: 'الآن في صدى'
+        , sub: 'إقرأ بلا اتصال'
+        , dir: 'rtl'
+        , feeds: [{
+            url: 'http://carnegieendowment.org/rss/solr/?fa=AppSadaAr'
+            , name: 'تحديث الكل '
+            , filename: 'sada-ar.json'
+            , dir: 'rtl'
+            , type: 'json'
+            , arabic: true
+        }]
+    }, {
+        title: 'Browse Topics'
+        , links: [{
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=727&type=topic'
+            , name: 'Civil Society'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=729&type=topic'
+            , name: 'Economic Reform'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=731&type=topic'
+            , name: 'Educational Reform'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=733&type=topic'
+            , name: 'Freedom of Expression'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=725&type=topic'
+            , name: 'Human Rights'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=735&type=topic'
+            , name: 'Islamist Politics'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=757&type=topic'
+            , name: 'Opposition Politics'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=737&type=topic'
+            , name: 'Political Reforms'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=1215&type=topic'
+            , name: 'Identity Politics'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=1214&type=topic'
+            , name: 'Security Issues'
+        }]
+    }, {
+        title: 'Browse Regions'
+        , links: [{
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=692&type=region'
+            , name: 'Gulf Countries'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=696&type=region'
+            , name: 'Bahrain'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=1470&type=region'
+            , name: 'Iran'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=700&type=region'
+                , name: 'Kuwait'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=704&type=region'
+            , name: 'Oman'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=708&type=region'
+            , name: 'Qatar'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=712&type=region'
+            , name: 'Saudi Arabia'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=716&type=region'
+            , name: 'United Arab Emirates'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=720&type=region'
+            , name: 'Yemen'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=668&type=region'
+            , name: 'Levant'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=672&type=region'
+            , name: 'Iraq'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=680&type=region'
+            , name: 'Jordan'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=676&type=region'
+            , name: 'Lebanon'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=684&type=region'
+            , name: 'Palestine'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=688&type=region'
+            , name: 'Syria'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=1472&type=region'
+            , name: 'Turkey'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=636&type=region'
+            , name: 'North Africa'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=652&type=region'
+            , name: 'Algeria'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=644&type=region'
+            , name: 'Egypt'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=648&type=region'
+            , name: 'Libya'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=656&type=region'
+            , name: 'Mauritania'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=660&type=region'
+            , name: 'Morocco'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=640&type=region'
+            , name: 'Sudan'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=664&type=region'
+            , name: 'Tunisia'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=744&type=region'
+            , name: 'General'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=743&type=region'
+            , name: 'Middle East'
+        }]
+    }, {
+        title: 'Browse Topics'
+        , links: [{
+            url: 'http://carnegieendowment.org/sada/?fa=aboutSada'
+            , name: 'About Sada'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=contributors'
+            , name: 'Contributors'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=series'
+            , name: 'Spotlight'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=debate'
+            , name: 'Debates'
+        }, {
+            url: 'http://carnegieendowment.org/sada/2011/10/24/beyond-sada/aobz'
+            , name: 'Beyond Sada'
+        }, {
+            url: 'http://carnegieendowment.org/sada/index.cfm?fa=show&article=45818&lang=en'
+            , name: 'Reform Blogs'
+        }]
+    }, {
+        title: 'استعرض المواضيع'
+        , dir: 'rtl'
+        , links: [{
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=728&type=topic&lang=ar'
+            , dir: 'rtl'
+            , name: 'المجتمع المدني '
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=736&type=topic&lang=ar'
+            , dir: 'rtl'
+            , name: 'السياسة الإسلامية '
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=738&type=topic&lang=ar'
+            , dir: 'rtl'
+            , name: 'الإصلاح السياسي '
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=730&type=topic&lang=ar'
+            , dir: 'rtl'
+            , name: 'الإصلاح الاقتصادي '
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=732&type=topic&lang=ar'
+            , dir: 'rtl'
+            , name: 'إصلاح التعليم'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=1328&type=topic&lang=ar'
+            , dir: 'rtl'
+            , name: 'سياسة الهوية'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=1330&type=topic&lang=ar'
+            , dir: 'rtl'
+            , name: 'المسائل الأمنية'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=726&type=topic&lang=ar'
+            , dir: 'rtl'
+            , name: 'حقوق الإنسان '
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=734&type=topic&lang=ar'
+            , dir: 'rtl'
+            , name: 'حرية التعبير'
+        }, {
+            url: 'http://carnegieendowment.org/sada/?fa=showCategory&id=758&type=topic&lang=ar'
+            , dir: 'rtl'
+            , name: 'المعارضة '
+        }]
+    }, {
+        title: 'استعرض الأقاليم'
+        , dir: 'rtl'
+        , links: [{
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=693&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'الخليج العربي'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=1471&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'إيران'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=717&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'الإمارات'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=697&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'البحرين'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=701&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'الكويت'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=713&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'المملكة العربية السعودية'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=721&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'اليمن'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=705&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'عمان'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=709&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'قطر'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=637&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'شمال إفريقيا'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=653&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'الجزائر'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=641&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'السودان'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=661&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'المغرب'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=665&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'تونس'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=649&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'ليبيا'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=645&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'مصر'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=657&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'موريتانيا'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=669&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'المشرق العربي'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=681&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'الأردن'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=673&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'العراق'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=1473&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'تركيا'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=689&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'سوريا'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=685&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'فلسطين'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=677&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'لبنان'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=745&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'عام'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=showCategory&id=747&type=region&lang=ar'
+            , dir: 'rtl'
+            , name: 'الشرق الأوسط'
+        }]
+    }, {
+        title: 'ابحث'
+        , dir: 'rtl'
+        , links: [{
+            url:'http://carnegieendowment.org/sada/?fa=aboutSada&lang=ar'
+            , dir: 'rtl'
+            , name: 'عن صدى'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=contributors&lang=ar'
+            , dir: 'rtl'
+            , name: 'كتّابنا'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=series&lang=ar'
+            , dir: 'rtl'
+            , name: 'موضوع الشهر'
+        }, {
+            url:'http://carnegieendowment.org/sada/?fa=debate&lang=ar'
+            , dir: 'rtl'
+            , name: 'نقاشات'
+        }, {
+            url:'http://carnegieendowment.org/sada%2F2011%2F10%2F26%2F%D9%85%D9%82%D8%A7%D9%84%D8%A7%D8%AA-%D8%A3%D8%AE%D8%B1%D9%89%2F6e15'
+            , dir: 'rtl'
+            , name: 'مقالات أخرى'
+        }, {
+            url:'http://carnegieendowment.org/sada/index.cfm?fa=show&article=45819&lang=ar'
+            , dir: 'rtl'
+            , name: 'بوابة المدونيين '
+        }]
+    }]
 };
 },{}],3:[function(require,module,exports){
 module.exports = function () {
@@ -515,217 +734,250 @@ module.exports = {
 /*global module, require, $*/
 
 var config = require('../config')
-	, notify = require('../../util/notify')
-	, access = require('../access')
-	, header = require('./header')
-	, storyList = require('./storyList')
-	, doesFileExist = require('../../io/doesFileExist')
-	, getFileContents = require('../../io/getFileContents')
-	, primary = false;
+    , notify = require('../../util/notify')
+    , access = require('../access')
+    , header = require('./header')
+    , storyList = require('./storyList')
+    , doesFileExist = require('../../io/doesFileExist')
+    , getFileContents = require('../../io/getFileContents')
+    , primary = false;
 
 function friendlyDate (obj) {
   return obj.friendlyPubDate !== undefined ? obj.friendlyPubDate : obj.lastBuildDate;
 }
 
 (function init() {
-	var menuFragment = $('<section/>', {
-		addClass: 'menu'
-	});
+    var input = $('<select>', {
+        }).append(
+            $('<option/>', {
+                val: 'English',
+                text: 'English',
+                selected: true
+            })
+        ).append(
+            $('<option/>', {
+                val: 'Arabic',
+                text: 'عربي'
+            })
+        )
+            , checkrow = $('<div/>', {
+            addClass: 'checkrow'
+        }).append(input),
+        menuFragment = $('<section/>', {
+            addClass: 'menu'
+        }).append(checkrow);
 
-	config.menu.forEach(function (obj) {
-		var feed = !!obj.feeds
-		, list = $('<ul/>', {
-				addClass: 'menu-items'
-			})
-		, title = $('<span/>', {
-				addClass: 'title'
-				, text: obj.title || ''
-			})
-		, sub = $('<span/>', {
-				addClass: 'sub'
-				, text: obj.sub || ''
-			})
-		, sectionHeader = $('<div/>', {
-				addClass: 'section-header'
-			}).append(title).append(sub);
+    config.menu.forEach(function (obj) {
+        var feed = !!obj.feeds
+        , list = $('<ul/>', {
+                addClass: 'menu-items'
+            })
+        , title = $('<span/>', {
+                addClass: 'title'
+                , text: obj.title || ''
+            })
+        , sub = $('<span/>', {
+                addClass: 'sub'
+                , text: obj.sub || ''
+            })
+        , sectionHeader = $('<div/>', {
+                addClass: 'section-header ' + (obj.dir === 'rtl' ? 'rtl' : 'ltr')
+                , dir: obj.dir === 'rtl' ? 'rtl' : 'ltr'
+            }).append(title).append(sub)
+        ;
 
-		if (feed) {
-			obj.feeds.forEach(function (el) {
-				var label = $('<div/>', {
-					addClass: 'label'
-					, text: el.name
-				})
-				, sub = $('<div/>', {
-					addClass: 'sub'
-					, text: 'Not yet downloaded'
-					, 'data-url': el.filename || el.url.split('/').pop().split('.').shift() + '.json'
-				})
-				, container = $('<div/>', {
-						addClass: 'menu-item-box'
-					}).append(label).append(sub)
-				, box = $('<div/>', {
-						addClass: el.required ? 'check required' : 'check'
-					})
-				, link = $('<a/>', {
-					addClass: 'menu-link feed'
-				})
-				, hairline = $('<div/>', {
-					addClass: 'hairline'
-				})
-				, item = $('<li/>', {
-					addClass: 'menu-item'
-				}).append(hairline).append(link.append(container).append(box))
-				, filename = access.getFilenameFromFeed(el);
+        if (feed) {
+            obj.feeds.forEach(function (el) {
+                var label = $('<div/>', {
+                    addClass: 'label'
+                    , text: el.name
+                })
+                , sub = $('<div/>', {
+                    addClass: 'sub'
+                    , text: 'Not yet downloaded'
+                    , 'data-url': el.filename || el.url.split('/').pop().split('.').shift() + '.json'
+                })
+                , container = $('<div/>', {
+                        addClass: 'menu-item-box'
+                    }).append(label).append(sub)
+                , box = $('<div/>', {
+                        addClass: el.required ? 'check required' : 'check'
+                    })
+                , link = $('<a/>', {
+                    addClass: 'menu-link feed'
+                })
+                , hairline = $('<div/>', {
+                    addClass: 'hairline'
+                })
+                , item = $('<li/>', {
+                    addClass: 'menu-item ' + (el.dir === 'rtl' ? 'rtl' : 'ltr')
+                    , dir: el.dir === 'rtl' ? 'rtl' : 'ltr'
+                }).append(hairline).append(link.append(container).append(box))
+                , filename = access.getFilenameFromFeed(el);
 
-				if (el.required && !primary) {
-					primary = item;
-					item.addClass('active')
-				}
-				doesFileExist(filename).then(function () {
-					getFileContents(filename).then(function (contents) {
-						var obj = (JSON.parse(contents.target._result));
-						update(filename, 'Updated: ' + friendlyDate(obj));
-						box.addClass('checked');
-					}, function (e){console.log(e)});
-				}, function (e){console.log(e)});
+                if (el.required && !primary) {
+                    primary = item;
+                    item.addClass('active')
+                }
+                doesFileExist(filename).then(function () {
+                    getFileContents(filename).then(function (contents) {
+                        var obj = (JSON.parse(contents.target._result));
+                        update(filename, 'Updated: ' + friendlyDate(obj));
+                        box.addClass('checked');
+                    }, function (e){console.log(e)});
+                }, function (e){console.log(e)});
 
-				list.append(item);
-			})
-		} else {
-			obj.links.forEach(function (el) {
-				var label = $('<div/>', {
-					addClass: 'label link'
-					, text: el.name
-				})
-				, container = $('<div/>', {
-						addClass: 'menu-item-box'
-					}).append(label)
-				, link = $('<a/>', {
-					addClass: 'menu-link link'
-					, href: el.url
-					, target: '_system'
-				})
-				, hairline = $('<div/>', {
-					addClass: 'hairline'
-				})
-				, item = $('<li/>', {
-					addClass: 'menu-item'
-				}).append(hairline).append(link.append(container));
+                list.append(item);
+            })
+        } else {
+            obj.links.forEach(function (el) {
+                var label = $('<div/>', {
+                    addClass: 'label link'
+                    , text: el.name
+                })
+                , container = $('<div/>', {
+                        addClass: 'menu-item-box'
+                    }).append(label)
+                , link = $('<a/>', {
+                    addClass: 'menu-link link'
+                    , href: el.url
+                    , target: '_system'
+                })
+                , hairline = $('<div/>', {
+                    addClass: 'hairline'
+                })
+                , item = $('<li/>', {
+                    addClass: 'menu-item ' + (el.dir === 'rtl' ? 'rtl' : 'ltr')
+                    , dir: el.dir === 'rtl' ? 'rtl' : 'ltr'
+                }).append(hairline).append(link.append(container));
 
-				list.append(item);
-			})
-		}
+                list.append(item);
+            })
+        }
 
-		menuFragment.append(sectionHeader).append(list);
+        menuFragment.append(sectionHeader).append(list);
 
-	});
+    });
 
-	$('section.menu').replaceWith(menuFragment);
+    $('section.menu').replaceWith(menuFragment);
 
-	$('a.menu-link .check').on('click', function (e) {
-		//download a feed
-		var index = $('section.menu li').index($(this).closest('li'))
-		e.stopPropagation();
+    $('section.menu .checkrow select').on('change', function (e) {
+        var showEnglish = $(e.currentTarget).val() === 'English';
+        $('section.menu').find('.section-header').hide();
+        $('section.menu').find('ul.menu-items').hide();
+        if (showEnglish) {
+            $('section.menu').find('.section-header.ltr').show();
+            $('section.menu').find('.section-header.ltr').next().show();
+        } else {
+            $('section.menu').find('.section-header.rtl').show();
+            $('section.menu').find('.section-header.rtl').next().show();
+        }
+    }).trigger('change');
 
-		if ($(this).hasClass('checked') && $(this).hasClass('required') === false) {
-			remove(index);
-			if (config.track && analytics) {
-				analytics.trackEvent('Menu', 'Feed', 'Delete Feed', 10);
-			}
-		} else {
-			if (navigator.connection.type !== 'none') {
-				get(index, true, $(this));
-				if (config.track && analytics) {
-					analytics.trackEvent('Menu', 'Feed', 'Download Feed', 10);
-				}
-			} else {
-				notify.alert(config.connectionMessage);
-			}
-		}
-	});
+    $('a.menu-link .check').on('click', function (e) {
+        //download a feed
+        var index = $('section.menu li').index($(this).closest('li'));
+        e.stopPropagation();
 
-	$('a.menu-link.feed').on('click', function (e) {
-		var $check = $(e.currentTarget).find('.check')
-			, index = $('section.menu li').index($(this).closest('li'));
-		e.preventDefault();
-		if (navigator.connection.type !== 'none' || $check.hasClass('checked') || $check.hasClass('required')) {
-			get(index, false, $(this));
-			$('section.menu li.active').removeClass('active');
-			$(e.currentTarget).closest('li').addClass('active');
-		} else {
-			notify.alert(config.connectionMessage);
-		}
-	});
+        if ($(this).hasClass('checked') && $(this).hasClass('required') === false) {
+            remove(index);
+            if (config.track && analytics) {
+                analytics.trackEvent('Menu', 'Feed', 'Delete Feed', 10);
+            }
+        } else {
+            if (navigator.connection.type !== 'none') {
+                get(index, true, $(this));
+                if (config.track && analytics) {
+                    analytics.trackEvent('Menu', 'Feed', 'Download Feed', 10);
+                }
+            } else {
+                notify.alert(config.connectionMessage);
+            }
+        }
+    });
 
-	$('a.menu-link.link').on('click', function (e) {
-		e.preventDefault();
-		if (navigator.connection.type !== 'none') {
-			var url = $(e.currentTarget).prop('href');
-			window.open(encodeURI(url), '_blank', 'location=no,toolbar=yes,enableViewportScale=yes');
-			$('section.menu li.active').removeClass('active');
-			$(e.currentTarget).closest('li').addClass('active');
-			if (config.track && analytics) {
-				analytics.trackEvent('Menu', 'Link Click ', url, 10);
-			}
-		} else {
-			notify.alert(config.connectionMessage);
-		}
-	})
+    $('a.menu-link.feed').on('click', function (e) {
+        var $check = $(e.currentTarget).find('.check')
+            , index = $('section.menu li').index($(this).closest('li'));
+        e.preventDefault();
+        if (navigator.connection.type !== 'none' || $check.hasClass('checked') || $check.hasClass('required')) {
+            get(index, false, $(this));
+            $('section.menu li.active').removeClass('active');
+            $(e.currentTarget).closest('li').addClass('active');
+        } else {
+            notify.alert(config.connectionMessage);
+        }
+    });
+
+    $('a.menu-link.link').on('click', function (e) {
+        e.preventDefault();
+        if (navigator.connection.type !== 'none') {
+            var url = $(e.currentTarget).prop('href');
+            window.open(encodeURI(url), '_blank', 'location=no,toolbar=yes,enableViewportScale=yes');
+            $('section.menu li.active').removeClass('active');
+            $(e.currentTarget).closest('li').addClass('active');
+            if (config.track && analytics) {
+                analytics.trackEvent('Menu', 'Link Click ', url, 10);
+            }
+        } else {
+            notify.alert(config.connectionMessage);
+        }
+    })
 
 }());
 
 function update(filename, date) {
-	var items = $('section.menu .menu-item-box .sub[data-url="' + filename + '"]');
-	items.text(date);
-	items.closest('li').find('.check').removeClass('loading').addClass('checked');
+    var items = $('section.menu .menu-item-box .sub[data-url="' + filename + '"]');
+    items.text(date);
+    items.closest('li').find('.check').removeClass('loading').addClass('checked');
 }
 
 function get(id, loadOnly, $el) {
-	var filename = access.getFilenameFromId(id);
-	$el.closest('li').find('.check').addClass('loading');
+    var filename = access.getFilenameFromId(id);
+    $el.closest('li').find('.check').addClass('loading');
 
-	access.get(id, loadOnly).then(function (contents) {
-		var obj = (JSON.parse(contents.target._result));
+    access.get(id, loadOnly).then(function (contents) {
+        var obj = (JSON.parse(contents.target._result));
 
-		update(filename, 'Updated: ' + friendlyDate(obj));
-		if (!loadOnly) {
-			storyList.show(obj).then(function () {
+        update(filename, 'Updated: ' + friendlyDate(obj));
+        if (!loadOnly) {
+            storyList.show(obj).then(function () {
         header.showStoryList();
-			});
-		}
-	}, function (error) {
-		var filename = access.getFilenameFromId(id)
-			, item = $('section.menu .menu-item-box .sub[data-url="' + filename + '"]').closest('li');
+            });
+        }
+    }, function (error) {
+        var filename = access.getFilenameFromId(id)
+            , item = $('section.menu .menu-item-box .sub[data-url="' + filename + '"]').closest('li');
 
-		analytics.trackEvent('Menu', 'Error', 'Feed Load Error: ' + access.getFilenameFromId(id), 10);
-		remove(id);
-		notify.alert('There was an error processing the ' + access.getFeedNameFromId(id) + ' feed');
-	});
+        analytics.trackEvent('Menu', 'Error', 'Feed Load Error: ' + access.getFilenameFromId(id), 10);
+        remove(id);
+        notify.alert('There was an error processing the ' + access.getFeedNameFromId(id) + ' feed');
+    });
 }
 
 function cleanup(id) {
-	var filename = access.getFilenameFromId(id)
-		, item = $('section.menu .menu-item-box .sub[data-url="' + filename + '"]').closest('li');
+    var filename = access.getFilenameFromId(id)
+        , item = $('section.menu .menu-item-box .sub[data-url="' + filename + '"]').closest('li');
 
-	item.find('.check').removeClass('checked loading');
-	item.find('.sub').text(config.menuMessage);
-	if (item.hasClass('active')) {
-		item.removeClass('active');
-		primary.addClass('active');
-		getFileContents(access.getFilenameFromId(0)).then(function (contents) {
-			var obj = (JSON.parse(contents.target._result));
-			storyList.show(obj);
-		})
-	}
+    item.find('.check').removeClass('checked loading');
+    item.find('.sub').text(config.menuMessage);
+    if (item.hasClass('active')) {
+        item.removeClass('active');
+        primary.addClass('active');
+        getFileContents(access.getFilenameFromId(0)).then(function (contents) {
+            var obj = (JSON.parse(contents.target._result));
+            storyList.show(obj);
+        })
+    }
 }
 
 function remove(id) {
 
-	access.removeFeed(id).then(function () {
-		cleanup(id)
-	}, function () {
-		cleanup(id)
-	})
+    access.removeFeed(id).then(function () {
+        cleanup(id)
+    }, function () {
+        cleanup(id)
+    })
 }
 
 $(document).on('access.refresh', function (e, obj, filename) {
@@ -733,10 +985,12 @@ $(document).on('access.refresh', function (e, obj, filename) {
 });
 
 module.exports = {
-	update: update
+    update: update
 };
 },{"../../io/doesFileExist":15,"../../io/getFileContents":19,"../../util/notify":30,"../access":1,"../config":2,"./header":4,"./storyList":9}],6:[function(require,module,exports){
 var access = require('../access');
+Hammer.defaults.stop_browser_behavior.touchAction = 'pan-y';
+
 
 /**
  * requestAnimationFrame and cancel polyfill
@@ -1275,6 +1529,14 @@ function update() {
   setTimeout(function () {
     $('section.story .next').scrollTop(0);
     $('section.story .previous').scrollTop(0);
+      if (index === 0) {
+          $('.story-list').scrollTop(0)
+      } else {
+          $('.story-list').scrollTop(
+              parseInt($('.story-list ul li').eq(0).height(), 10) +
+              ((index - 1) * parseInt($('.story-list ul li').eq(1).height(), 10))
+          )
+      }
   }, 350)
 }
 
@@ -1376,21 +1638,23 @@ function show(feedObj, forceActive) {
 		});*/
 
     $('.story-item').on('click', function (e) {
-	    if (connection.get() === 'none') {
-			$('body').addClass('offline')
-	    } else {
-		    $('body').removeClass('offline')
-	    }
-      var li = $(this).closest('li')
-        , index = $('section.story-list ul li').index(li)
-        , feed = sent ? void 0 : feedObj;
+        if (e.clientY > (parseInt($('header').height()) + 5)) {
+            if (connection.get() === 'none') {
+                $('body').addClass('offline')
+            } else {
+                $('body').removeClass('offline')
+            }
+            var li = $(this).closest('li')
+                , index = $('section.story-list ul li').index(li)
+                , feed = sent ? void 0 : feedObj;
 
-        $('.story-item.active').removeClass('active'); 
-        $(this).addClass('active'); 
-        story.show(index, feed).then(function () {
-          header.showStory();
-        });
-        sent = true;
+            $('.story-item.active').removeClass('active');
+            $(this).addClass('active');
+            story.show(index, feed).then(function () {
+                header.showStory();
+            });
+            sent = true;
+        }
     });
 
     $('.story-image').on('error', function (e) {
@@ -1810,4 +2074,4 @@ module.exports = {
 	y: y,
 	n: n
 };
-},{"../app/config":2}]},{},[11])
+},{"../app/config":2}]},{},[11]);

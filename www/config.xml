@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.ceip.carnegie" version="3.0.4" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>Carnegie</name>
+<widget id="com.ceip.sada" version="3.0.8" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>Sada</name>
     <description>
         Carnegie Feed Reader
     </description>
@@ -22,7 +22,8 @@
     <preference name="fade-splash-screen" value="true" />
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="FadeSplashScreen" value="true" />
-    <preference name="disable-cursor" value="false" />
+    <preference name="disable-curso
+    r" value="false" />
     <preference name="android-minSdkVersion" value="16" />
     <preference name="android-installLocation" value="auto" />
     <preference name="SplashScreen" value="splash" />

@@ -164,6 +164,21 @@ function get(id) {
   })
 }
 
+// if any lastCommentPosted prop doesn't match it's twin then a comment has been updated
+function isAnyCommentNew (o1, o2) {
+    var updated = false;
+    if (o1 && o1.item && o1.item.length > 0 && o2 && o2.item && o2.item.length > 0) {
+        $.each(o1.item, function (i, e) {
+            var x = o2.item[i];
+            if (e.lastCommentPosted !== x.lastCommentPosted) {
+                updated = true;
+                return false;
+            }
+        });
+    }
+    return updated;
+}
+
 function removeOrphanedImages() {
   return new Promise(function (resolve, reject) {
     var images = ['image-unavailable_605x328.png'];
