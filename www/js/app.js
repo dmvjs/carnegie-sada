@@ -747,8 +747,11 @@ function friendlyDate (obj) {
 }
 
 (function init() {
-    var input = $('<select>', {
-        }).append(
+    var arrow = $('<div/>', {
+            addClass: 'select-arrow'
+        }),
+        input = $('<select>', {}
+        ).append(
             $('<option/>', {
                 val: 'English',
                 text: 'English',
@@ -762,7 +765,7 @@ function friendlyDate (obj) {
         )
             , checkrow = $('<div/>', {
             addClass: 'checkrow'
-        }).append(input),
+        }).append(input).append(arrow),
         menuFragment = $('<section/>', {
             addClass: 'menu'
         }).append(checkrow);
@@ -770,7 +773,7 @@ function friendlyDate (obj) {
     config.menu.forEach(function (obj) {
         var feed = !!obj.feeds
         , list = $('<ul/>', {
-                addClass: 'menu-items'
+                addClass: 'menu-items ' + (obj.dir === 'rtl' ? 'rtl ' : 'ltr ')
             })
         , title = $('<span/>', {
                 addClass: 'title'
@@ -781,7 +784,7 @@ function friendlyDate (obj) {
                 , text: obj.sub || ''
             })
         , sectionHeader = $('<div/>', {
-                addClass: 'section-header ' + (obj.dir === 'rtl' ? 'rtl' : 'ltr')
+                addClass: 'section-header ' + (obj.dir === 'rtl' ? 'rtl ' : 'ltr ')
                 , dir: obj.dir === 'rtl' ? 'rtl' : 'ltr'
             }).append(title).append(sub)
         ;

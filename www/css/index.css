@@ -366,7 +366,7 @@ section.story-list .story-item.active {
 
 section.story-list .story-item .story-text {
     width: 100%;
-    margin: 0 2px;
+    margin: 5px;
 }
 
 section.story-list li:first-of-type .story-item .story-text {
@@ -376,9 +376,17 @@ section.story-list li:first-of-type .story-item .story-text {
     overflow: auto;
 }
 
+section.story-list .story-item .story-date {
+    display: none;
+}
+
 .tablet section.story-list .story-item .story-text {
     font-size: 1.5em;
     margin: 15px;
+}
+
+.tablet section.story-list .story-item .story-date {
+    display: block;
 }
 
 .tablet section.story-list li:first-of-type .story-item .story-text {
@@ -569,7 +577,7 @@ section.menu ul.menu-items li .hairline {
 }
 
 section.menu ul.menu-items li.active {
-    background-color: #ccc7c2;
+    background-color: #cce1fa;
 }
 
 section.menu .menu-item.rtl {
@@ -1348,5 +1356,23 @@ section.menu .checkrow select {
     font-size: 16px;
 }
 
+.menu .checkrow select {
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 0;
+    -webkit-appearance:none;
+    color: white;
+    text-transform: uppercase;
+    padding-left: 15px;
+}
+
+.menu .checkrow .select-arrow {
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid white;
+    display: inline-block;
+    margin-left: -30px;
+}
 
 
